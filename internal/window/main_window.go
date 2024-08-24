@@ -17,7 +17,7 @@ func Execute() {
 		AddItem(newPrimitive("Tax Dashboard"), 0, 0, 1, 3, 0, 0, false).
 		AddItem(newPrimitive("Footer"), 2, 0, 1, 3, 0, 0, false)
 
-	RenderDailyList(main)
+	RenderMonthlyList(main)
 
 	grid.AddItem(main, 1, 0, 1, 3, 0, 0, false)
 	if err := app.SetRoot(grid, true).SetFocus(main).Run(); err != nil {

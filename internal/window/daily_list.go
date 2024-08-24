@@ -5,16 +5,30 @@ import (
 	"github.com/rivo/tview"
 )
 
+func RenderMonthlyList(tviewList *tview.List) *tview.List {
+	results := parser.ListMontlhyAuctions()
+	for _, result := range results {
+		tviewList.AddItem("Auction day "+result.AuctionMonth.Format("Y-m-d"), "Some explanatory text", 'a', nil)
+	}
+
+	return tviewList
+	/*
+	   list := tview.NewList().
+
+	   	AddItem("List item 1", "Some explanatory text", 'a', nil).
+	   	AddItem("List item 2", "Some explanatory text", 'b', nil).
+	   	AddItem("List item 3", "Some explanatory text", 'c', nil).
+	   	AddItem("List item 4", "Some explanatory text", 'd', nil).
+	   	AddItem("Quit", "Press to exit", 'q', func() {
+	   		app.Stop()
+	   	})
+	*/
+}
+
 func RenderDailyList(tviewList *tview.List) *tview.List {
-	results, err := parser.ListAuctionDays().Rows()
-	if err == nil {
-		defer results.Close()
-		for results.Next() {
-			var Id int
-			var AuctionDay string
-			results.Scan(&Id, &AuctionDay)
-			tviewList.AddItem("List item "+AuctionDay, "Some explanatory text", 'a', nil)
-		}
+	results := parser.ListAuctionDays()
+	for _, result := range results {
+		tviewList.AddItem("Auction day "+result.AuctionDay.Format("Y-m-d"), result.CustomerCode, 'a', nil)
 	}
 
 	return tviewList
