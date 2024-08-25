@@ -1,6 +1,8 @@
 package window
 
 import (
+	"fmt"
+
 	"github.com/rcarreirao/pdf_balance_parser/pkg/misc/parser"
 	"github.com/rivo/tview"
 )
@@ -8,7 +10,7 @@ import (
 func RenderMonthlyList(tviewList *tview.List) *tview.List {
 	results := parser.ListMontlhyAuctions()
 	for _, result := range results {
-		tviewList.AddItem("Auction day "+result.AuctionMonth.Format("Y-m-d"), "Some explanatory text", 'a', nil)
+		tviewList.AddItem("Auction month "+result.AuctionMonth, "", 'a', ShowAuctionMontly)
 	}
 
 	return tviewList
@@ -43,4 +45,8 @@ func RenderDailyList(tviewList *tview.List) *tview.List {
 	   		app.Stop()
 	   	})
 	*/
+}
+
+func ShowAuctionMontly() {
+	fmt.Println("SHow Monthly")
 }
