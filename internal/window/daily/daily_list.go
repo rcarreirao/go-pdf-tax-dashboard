@@ -1,38 +1,43 @@
-package window
+package daily
 
 import (
-	"github.com/gdamore/tcell/v2"
+	monthly "go_pdf_tax_dashboard/internal/window/montly"
+
 	"github.com/rcarreirao/pdf_balance_parser/pkg/misc/parser"
+	"github.com/rcarreirao/pdf_balance_parser/pkg/model/auction"
 	"github.com/rivo/tview"
 )
 
 type DailyList struct {
-	grid       *tview.Grid
-	tviewList  *tview.List
-	tviewTable *tview.Table
+	app         *tview.Application
+	grid        *tview.Grid
+	TviewList   *tview.List
+	MontlhyList *monthly.MontlhyList
+	results     []auction.AuctionDays
 }
 
 func (dl *DailyList) Start(grid *tview.Grid) *DailyList {
-	dl.tviewList = tview.NewList()
-	dl.tviewTable = tview.NewTable()
+	dl.TviewList = tview.NewList()
 	dl.grid = grid
+	dl.MontlhyList = new(monthly.MontlhyList)
 	return dl
 }
 
 func (dl *DailyList) RenderMonthlyList() {
-	results := parser.ListAuctionDays()
-	for _, result := range results {
-		dl.tviewList.AddItem("Auction month "+result.AuctionDay.Format("Y-m-d"), result.CustomerCode, 'a', dl.ShowAuctionMontly)
+	dl.results = parser.ListAuctionDays()
+	for _, result := range dl.results {
+		dl.TviewList.SetSelectedFunc(dl.ShowAuctionMontly)
+		dl.TviewList.AddItem("Auction month "+result.AuctionDay.Format("Y-m-d"), result.CustomerCode, 'a', nil)
 	}
 }
 
 func (dl *DailyList) RenderDailyList() *tview.List {
-	dl.tviewList.Clear()
-	results := parser.ListAuctionDays()
-	for _, result := range results {
-		dl.tviewList.AddItem("Auction day "+result.AuctionDay.Format("Y-m-d"), result.CustomerCode, 'a', dl.ShowAuctionDay)
+	dl.TviewList.Clear()
+	dl.results = parser.ListAuctionDays()
+	for _, result := range dl.results {
+		dl.TviewList.AddItem("Auction day "+result.AuctionDay.Format("Y-m-d"), result.CustomerCode, 'a', nil)
 	}
-	return dl.tviewList
+	return dl.TviewList
 	/*
 	   list := tview.NewList().
 
@@ -46,50 +51,16 @@ func (dl *DailyList) RenderDailyList() *tview.List {
 	*/
 }
 
-func (dl *DailyList) RenderTableList() {
-	cols, rows := 10, 40
-	for r := 0; r < rows; r++ {
-		for c := 0; c < cols; c++ {
-			color := tcell.ColorWhite
-			if c < 1 || r < 1 {
-				color = tcell.ColorYellow
-			}
-			dl.tviewTable.SetCell(r, c,
-				tview.NewTableCell("a").
-					SetTextColor(color).
-					SetAlign(tview.AlignCenter))
-		}
-	}
-}
-
-/*
-	func (dl *DailyList) monitoringTrips(g *Gui) {
-		ticker := time.NewTicker(5 * time.Minute)
-
-LOOP:
-
-		for {
-			select {
-			case <-ticker.C:
-				dl.updateEntries(g)
-			case <-g.state.stopChans["trips"]:
-				ticker.Stop()
-				break LOOP
-			}
-		}
-	}
-*/
 func (dl *DailyList) updateEntries() {
-	app.Suspend(func() {})
+	dl.app.Suspend(func() {})
 	dl.RenderMonthlyList()
-	app.SetFocus(dl.tviewList).Run()
+	dl.app.SetFocus(dl.TviewList).Run()
 }
 
-func (dl *DailyList) ShowAuctionMontly() {
-	dl.RenderTableList()
-	dl.grid.RemoveItem(dl.tviewList)
-	dl.grid.AddItem(dl.tviewTable, 1, 0, 1, 3, 0, 0, false)
-
+func (dl *DailyList) ShowAuctionMontly(index int, mainText string, secondaryText string, shortcut rune) {
+	dl.MontlhyList.Start(dl.app).SetSelectedAuctionDayId(int(dl.results[index].ID)).RenderTableList()
+	dl.grid.RemoveItem(dl.TviewList)
+	dl.grid.AddItem(dl.MontlhyList.GetTable(), 1, 0, 1, 3, 0, 0, false)
 }
 
 func (dl *DailyList) ShowAuctionDay() {

@@ -1,6 +1,10 @@
 package window
 
-import "github.com/rivo/tview"
+import (
+	"go_pdf_tax_dashboard/internal/window/daily"
+
+	"github.com/rivo/tview"
+)
 
 var (
 	app *tview.Application
@@ -19,12 +23,12 @@ func Execute() {
 		SetBorders(true).
 		AddItem(newPrimitive("Tax Dashboard"), 0, 0, 1, 3, 0, 0, false)
 
-	dailyList := new(DailyList).Start(grid)
+	dailyList := new(daily.DailyList).Start(grid)
 
 	dailyList.RenderMonthlyList()
-	grid.AddItem(dailyList.tviewList, 1, 0, 1, 3, 0, 0, false)
+	grid.AddItem(dailyList.TviewList, 1, 0, 1, 3, 0, 0, false)
 	//grid.AddItem(dailyList.tviewTable, 1, 0, 1, 3, 0, 0, false)
-	if err := app.SetRoot(grid, true).SetFocus(dailyList.tviewList).Run(); err != nil {
+	if err := app.SetRoot(grid, true).SetFocus(dailyList.TviewList).Run(); err != nil {
 		panic(err)
 	}
 
